@@ -12,7 +12,7 @@ func ResponseJson(w http.ResponseWriter, status int, body interface{}) {
 	json.NewEncoder(w).Encode(body)
 }
 
-func ResponseError(w http.ResponseWriter, errMsg errors.RestErr) {
+func ResponseError(w http.ResponseWriter, errMsg *errors.RestErr) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(errMsg.StatusCode)
 	json.NewEncoder(w).Encode(errMsg)
