@@ -4,6 +4,12 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
+	"strings"
+)
+
+const (
+	envLogOutput = "LOG_OUTPUT"
 )
 
 var (
@@ -16,7 +22,7 @@ type logger struct {
 
 func init() {
 	config := zap.Config{
-		OutputPaths: []string{"stdout"},
+		OutputPaths: []string{getOutput()},
 		Level:       zap.NewAtomicLevelAt(zap.InfoLevel),
 		Encoding:    "json",
 		EncoderConfig: zapcore.EncoderConfig{
@@ -33,6 +39,14 @@ func init() {
 	if log.log, err = config.Build(); err != nil {
 		panic(err)
 	}
+}
+
+func getOutput() string {
+	output := strings.ToLower(strings.TrimSpace(os.Getenv(envLogOutput)))
+	if output == "" {
+		return "stdout"
+	}
+	return output
 }
 
 func Info(msg string, tags ...zap.Field) {
@@ -52,6 +66,10 @@ func (l logger) Printf(format string, v ...interface{}) {
 	} else {
 		Info(fmt.Sprintf(format, v...))
 	}
+}
+
+func (l logger) Print(v ...interface{}) {
+	Info(fmt.Sprintf("%v", v))
 }
 
 func GetLogger() logger {
